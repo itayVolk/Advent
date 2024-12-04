@@ -23,8 +23,8 @@ int main() {
     fclose(fp);
     char * found = strstr(buffer, str);
     int sum = 0;
+    char *dont = strstr(buffer, inval);
     while(found != NULL) {
-        char *dont = strstr(buffer, inval);
         if (dont == NULL || strlen(found) > strlen(dont)) {
             found += 4;
             int count = 0;
@@ -53,6 +53,8 @@ int main() {
         } else {
             found = strstr(dont, val);
             buffer = found;
+            if (buffer != NULL)
+                dont = strstr(buffer, inval);
         }
     }
 
