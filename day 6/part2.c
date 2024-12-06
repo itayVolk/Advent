@@ -8,13 +8,18 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool loops (int ** data, int height, int width, int x, int y) {
-    int ** arr = malloc(height*sizeof(int*));
-    for (int i = 0; i < height; i++) {
-        arr[i] = calloc(width, sizeof(int));
-        for (int j = 0; j < width; j++) {
-            if (data[i][j] != 0) {
-                arr[i][j] = data[i][j];
+bool loops (int ** data, int height, int width, int x, int y, bool initial) {
+    int ** arr;
+    if (initial) {
+        arr = data;
+    } else {
+        arr = malloc(height*sizeof(int*));
+        for (int i = 0; i < height; i++) {
+            arr[i] = calloc(width, sizeof(int));
+            for (int j = 0; j < width; j++) {
+                if (data[i][j] != 0) {
+                    arr[i][j] = data[i][j];
+                }
             }
         }
     }
@@ -26,6 +31,8 @@ bool loops (int ** data, int height, int width, int x, int y) {
                 if (arr[y][x] == 1) {
                     y -= dir-1;
                     dir++;
+                } else if (initial) {
+                    arr[y][x] = -1;
                 } else if (arr[y][x] == 0) {
                     arr[y][x] = -3*dir/2-1;
                 } else if (((-1*arr[y][x])&(3*dir/2+1)) > 0) {
@@ -40,6 +47,8 @@ bool loops (int ** data, int height, int width, int x, int y) {
                 if (arr[y][x] == 1) {
                     x += dir-2;
                     dir = (dir+1)%4;
+                } else if (initial) {
+                    arr[y][x] = -1;
                 } else if (arr[y][x] == 0) {
                     arr[y][x] = -3*dir+1;
                 } else if (((-1*arr[y][x])&(3*dir-1)) > 0) {
@@ -81,12 +90,23 @@ int main() {
         height++;
     }
 
+    int ** path = malloc(height*sizeof(int*));
+    for (int i = 0; i < height; i++) {
+        path[i] = calloc(width, sizeof(int));
+        for (int j = 0; j < width; j++) {
+            if (arr[i][j] != 0) {
+                path[i][j] = arr[i][j];
+            }
+        }
+    }
+    loops(path, height, width, x, y, true);
+    
     int count = 0;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            if ((i != y || j != x) && arr[i][j] == 0) {
+            if ((i != y || j != x) && path[i][j] == -1) {
                 arr[i][j] = 1;
-                if (loops(arr, height, width, x, y)) {
+                if (loops(arr, height, width, x, y, false)) {
                     count++;
                 }
                 arr[i][j] = 0;
