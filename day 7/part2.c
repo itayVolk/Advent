@@ -24,11 +24,9 @@ unsigned long long * possible(int * arr, int length) {
     for(int i = 0; i < count; i++) {
         out[i] += arr[0];
         out[i+count] *= arr[0];
-        // printf("%lld+%d=", out[i+count*2], arr[0]);
         char concat[256];
         sprintf(concat, "%llu%d", out[i+count*2], arr[0]);
         out[i+count*2] = atoll(concat);
-        // printf("%lld\n", out[i+count*2]);
     }
     return out;
 }
@@ -37,7 +35,6 @@ int main() {
     FILE * fp = fopen("input.txt", "r");
     char line[256];
     long long sum = 0;
-    long long prev = 0;
     while(fgets(line, sizeof(line), fp) != NULL) {
         unsigned long long tot = (unsigned long long)atoll(strtok(line, ":"));
         int *arr = calloc(15, sizeof(int));
@@ -64,7 +61,6 @@ int main() {
         }
 
         if (pos) {
-            prev = sum;
             sum += tot;
         }
     }
