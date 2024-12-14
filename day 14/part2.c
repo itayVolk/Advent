@@ -60,7 +60,6 @@ int main() {
     bool unique = false;
     int count = 0;
     while (!unique) {
-        printf("%d\n", count);
         count++;
         last = head->next;
         unique = true;
@@ -91,9 +90,11 @@ int main() {
     }
     
     head = head->next;
-    bool points [HEIGHT][WIDTH];
+    bool **points = malloc(HEIGHT*sizeof(bool*));
+    for (int i = 0; i < HEIGHT; i++) {
+        points[i] = calloc(WIDTH, sizeof(bool));
+    }
     while(head != NULL) {
-        printf("%d:%d\n", head->x, head->y);
         points[head->y][head->x] = true;
         head = head->next;
     }
