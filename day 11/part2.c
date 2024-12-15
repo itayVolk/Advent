@@ -38,7 +38,7 @@ int main() {
     fclose(fp);
     
     int numKeys = 0;
-    long long * keys = calloc(pow(10, 9), sizeof(long long));
+    long long * keys = calloc(4000, sizeof(long long));
     long long * counts = calloc(10, sizeof(long long));
 
     char * tok = strtok(strtok(buffer, "\n"), " ");
