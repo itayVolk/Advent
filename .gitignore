@@ -4,3 +4,6 @@
 Advent.code-workspace
 */*.txt
 *.java
+*.o
+*.py
+!day 16/input.txt
