@@ -24,7 +24,7 @@ static int compare(LOC * a, LOC * b) {
 }
 
 static int same(LOC * a, LOC * b) {
-    return a->x != b->x || a->y != b->y;
+    return a->x != b->x || a->y != b->y || a->dir != b->dir;
 }
 
 int moveX(int x, int dir) {
@@ -79,99 +79,50 @@ int main() {
     cur->score = 0;
     cur->prev = NULL;
     addEntry(q, cur);
-    addFirst(spent, cur);
-    LOC * reached = NULL;
-    while(reached == NULL || cur->score <= reached->score) {//TODO try to find the reason why its too big by 12
-        if (arr[cur->y][cur->x] == 1) {
-            reached = cur;
-        } else {
-            if (moveX(cur->x, cur->dir) >= 0 && moveX(cur->x, cur->dir) < width && moveY(cur->y, cur->dir) >= 0 && moveY(cur->y, cur->dir) < height && arr[moveY(cur->y, cur->dir)][moveX(cur->x, cur->dir)] >= 0) {
-                LOC * add = malloc(sizeof(LOC));
-                add->x = moveX(cur->x, cur->dir);
-                add->y = moveY(cur->y, cur->dir);
-                add->dir = cur->dir;
-                add->score = cur->score+1;
-                add->prev = cur;
-                // printf("%p", findItem(spent, add));
-                if (findItem(spent, add) == NULL) {
-                    addEntry(q, add);
-                    addFirst(spent, add);
-                }
-            }
+    while(arr[cur->y][cur->x] != 1) {
+        if (moveX(cur->x, cur->dir) >= 0 && moveX(cur->x, cur->dir) < width && moveY(cur->y, cur->dir) >= 0 && moveY(cur->y, cur->dir) < height && arr[moveY(cur->y, cur->dir)][moveX(cur->x, cur->dir)] >= 0) {
             LOC * add = malloc(sizeof(LOC));
-            add->dir = (cur->dir+1)%4;
-            if (moveX(cur->x, add->dir) >= 0 && moveX(cur->x, add->dir) < width && moveY(cur->y, add->dir) >= 0 && moveY(cur->y, add->dir) < height && arr[moveY(cur->y, add->dir)][moveX(cur->x, add->dir)] >= 0) {
-                add->x = moveX(cur->x, add->dir);
-                add->y = moveY(cur->y, add->dir);
-                add->score = cur->score+1001;
-                add->prev = cur;
-                if (findItem(spent, add) == NULL) {
-                    addEntry(q, add);
-                    addFirst(spent, add);
-                }
-            }
-            add = malloc(sizeof(LOC));
-            add->dir = (cur->dir+3)%4;
-            if (moveX(cur->x, add->dir) >= 0 && moveX(cur->x, add->dir) < width && moveY(cur->y, add->dir) >= 0 && moveY(cur->y, add->dir) < height && arr[moveY(cur->y, add->dir)][moveX(cur->x, add->dir)] >= 0) {
-                add->x = moveX(cur->x, add->dir);
-                add->y = moveY(cur->y, add->dir);
-                add->score = cur->score+1001;
-                add->prev = cur;
-                if (findItem(spent, add) == NULL) {
-                    addEntry(q, add);
-                    addFirst(spent, add);
-                }
-            }
+            add->x = moveX(cur->x, cur->dir);
+            add->y = moveY(cur->y, cur->dir);
+            add->dir = cur->dir;
+            add->score = cur->score+1;
+            add->prev = cur;
+            addEntry(q, add);
         }
-        printf("%d:%d:%d:%d\n", cur->x, cur->y, arr[cur->y][cur->x], cur->score);
-        // assert(arr[cur->y][cur->x] == 0);
-        cur = removeEntry(q);
-    }
-    printf("%d\n", reached->score);
-
-    char ** draw = malloc(height*sizeof(char*));
-    for (int i = 0; i < height; i++) {
-        draw[i] = calloc(width, sizeof(char));
-    }
-
-    LOC * next = reached;
-    cur = reached->prev;
-    while (cur != NULL) {
-        // printf("%d:%d:%d:%d:%d\n", cur->x, cur->y, cur->dir, arr[cur->y][cur->x], cur->score);
-        printf("%d\n", cur->score);
-        assert((cur->dir==next->dir && cur->score-next->score==-1) || cur->score==next->score-1001);
-        assert(abs(cur->y-next->y) + abs(cur->x-next->x) == 1);
-        char dir;
-        switch (cur->dir) {
-            case 0:
-                dir = '^';
-                break;
-            case 1:
-                dir = '<';
-                break;
-            case 2:
-                dir = 'v';
-                break;
-            case 3:
-                dir = '>';
-                break;
+        LOC * add = malloc(sizeof(LOC));
+        add->dir = (cur->dir+1)%4;
+        if (moveX(cur->x, add->dir) >= 0 && moveX(cur->x, add->dir) < width && moveY(cur->y, add->dir) >= 0 && moveY(cur->y, add->dir) < height && arr[moveY(cur->y, add->dir)][moveX(cur->x, add->dir)] >= 0) {
+            add->x = moveX(cur->x, add->dir);
+            add->y = moveY(cur->y, add->dir);
+            add->score = cur->score+1001;
+            add->prev = cur;
+            addEntry(q, add);
         }
-        assert(draw[cur->y][cur->x] == 0);
-        draw[cur->y][cur->x] = dir;
-        next = cur;
-        cur = cur->prev;
-    }
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            if (draw[i][j] != '\0') {
-                printf("%c", draw[i][j]);
-            } else if (arr[i][j]) {
-                printf("#");
+        add = malloc(sizeof(LOC));
+        add->dir = (cur->dir+3)%4;
+        if (moveX(cur->x, add->dir) >= 0 && moveX(cur->x, add->dir) < width && moveY(cur->y, add->dir) >= 0 && moveY(cur->y, add->dir) < height && arr[moveY(cur->y, add->dir)][moveX(cur->x, add->dir)] >= 0) {
+            add->x = moveX(cur->x, add->dir);
+            add->y = moveY(cur->y, add->dir);
+            add->score = cur->score+1001;
+            add->prev = cur;
+            addEntry(q, add);
+        }
+        do {
+            cur = removeEntry(q);
+            LOC * found = findItem(spent, cur);
+            if (found != NULL) {
+                if (found->score > cur->score) {
+                    removeItem(spent, found);
+                    addFirst(spent, cur);
+                    free(found);
+                    break;
+                }
             } else {
-                printf(" ");
+                addFirst(spent, cur);
+                break;
             }
-        }
-        printf("\n");
+        } while(true);
     }
+    printf("%d\n", cur->score);
     return 0;
 }
