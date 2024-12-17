@@ -3,7 +3,6 @@
    Date: 12/15/2024
 */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -46,14 +45,14 @@ int moveY(int y, int dir) {
 }
 
 int trace(LOC * prev, LIST * traced) {
-    int total = 1;
-    printf("%d:%d:%d\n", prev->x, prev->y, numItems(prev->prev));
+    int total = 0;
     while(numItems(prev->prev) > 0) {
         LOC * temp = removeFirst(prev->prev);
         if (findItem(traced, temp) == NULL) {
             addFirst(traced, temp);
-            total += trace(temp, traced);
+            total++;
         }
+        total += trace(temp, traced);
     }
     return total;
 }
@@ -96,82 +95,60 @@ int main() {
     cur->score = 0;
     cur->prev = createList(same);
     addEntry(q, cur);
-    addFirst(spent, cur);
-    // int path = 0;
-    // int count = 0;
-    LOC * reached = NULL;
-    while(reached == NULL || cur->score == reached->score) {//TODO add a way to see everything that led to a path (likely a list for prev)
-        if (arr[cur->y][cur->x] == 1) {
-            reached = cur;
-        } else {
-            printf("%d\n", arr[cur->y][cur->x]);
-            if (moveX(cur->x, cur->dir) >= 0 && moveX(cur->x, cur->dir) < width && moveY(cur->y, cur->dir) >= 0 && moveY(cur->y, cur->dir) < height && arr[moveY(cur->y, cur->dir)][moveX(cur->x, cur->dir)] >= 0) {
-                LOC * add = malloc(sizeof(LOC));
-                add->x = moveX(cur->x, cur->dir);
-                add->y = moveY(cur->y, cur->dir);
-                if (add->x == 5 && add->y == 7) {
-                    printf("hit\n");
-                }
-                add->dir = cur->dir;
-                add->score = cur->score+1;
-                printf("m");
-                LOC * exist = findItem(spent, add);
-                printf("%p\n", exist);
-                if (exist == NULL) {
-                    add->prev = createList(same);
-                    addFirst(add->prev, cur);
-                    addEntry(q, add);
-                    addFirst(spent, add);
-                } else if (add->score == exist->score){
-                    addFirst(exist->prev, cur);
-                } else {
-                    printf("d%d:%d:%d:%d:%d:%d\n", add->score-exist->score, add->x, add->y, add->dir, exist->dir, add->score);
-                }
-            }
+    while(arr[cur->y][cur->x] != 1) {
+        if (moveX(cur->x, cur->dir) >= 0 && moveX(cur->x, cur->dir) < width && moveY(cur->y, cur->dir) >= 0 && moveY(cur->y, cur->dir) < height && arr[moveY(cur->y, cur->dir)][moveX(cur->x, cur->dir)] >= 0) {
             LOC * add = malloc(sizeof(LOC));
-            add->dir = (cur->dir+1)%4;
-            if (moveX(cur->x, add->dir) >= 0 && moveX(cur->x, add->dir) < width && moveY(cur->y, add->dir) >= 0 && moveY(cur->y, add->dir) < height && arr[moveY(cur->y, add->dir)][moveX(cur->x, add->dir)] >= 0) {
-                add->x = moveX(cur->x, add->dir);
-                add->y = moveY(cur->y, add->dir);
-                add->score = cur->score+1001;
-                LOC * exist = findItem(spent, add);
-                printf("%p\n", exist);
-                if (exist == NULL) {
-                    add->prev = createList(same);
-                    addFirst(add->prev, cur);
-                    addEntry(q, add);
-                    addFirst(spent, add);
-                } else if (add->score == exist->score){
-                    addFirst(exist->prev, cur);
-                } else {
-                    printf("d%d:%d:%d:%d:%d:%d\n", add->score-exist->score, add->x, add->y, add->dir, exist->dir, add->score);
-                }
-            }
-            add = malloc(sizeof(LOC));
-            add->dir = (cur->dir+3)%4;
-            if (moveX(cur->x, add->dir) >= 0 && moveX(cur->x, add->dir) < width && moveY(cur->y, add->dir) >= 0 && moveY(cur->y, add->dir) < height && arr[moveY(cur->y, add->dir)][moveX(cur->x, add->dir)] >= 0) {
-                add->x = moveX(cur->x, add->dir);
-                add->y = moveY(cur->y, add->dir);
-                add->score = cur->score+1001;
-                LOC * exist = findItem(spent, add);
-                printf("%p\n", exist);
-                if (exist == NULL) {
-                    add->prev = createList(same);
-                    addFirst(add->prev, cur);
-                    addEntry(q, add);
-                    addFirst(spent, add);
-                } else if (add->score == exist->score){
-                    addFirst(exist->prev, cur);
-                } else {
-                    printf("d%d:%d:%d:%d:%d:%d\n", add->score-exist->score, add->x, add->y, add->dir, exist->dir, add->score);
-                }
-            }
+            add->x = moveX(cur->x, cur->dir);
+            add->y = moveY(cur->y, cur->dir);
+            add->dir = cur->dir;
+            add->score = cur->score+1;
+            addEntry(q, add);
+            add->prev = createList(same);
+            addFirst(add->prev, cur);
         }
-        printf("%d:%d:%d:%d:%d:%d\n", cur->x, cur->y, cur->dir, arr[cur->y][cur->x], cur->score, numEntries(q));
-        assert(cur->dir >= 0 && cur->dir < 4);
-        cur = removeEntry(q);
+        LOC * add = malloc(sizeof(LOC));
+        add->dir = (cur->dir+1)%4;
+        if (moveX(cur->x, add->dir) >= 0 && moveX(cur->x, add->dir) < width && moveY(cur->y, add->dir) >= 0 && moveY(cur->y, add->dir) < height && arr[moveY(cur->y, add->dir)][moveX(cur->x, add->dir)] >= 0) {
+            add->x = moveX(cur->x, add->dir);
+            add->y = moveY(cur->y, add->dir);
+            add->score = cur->score+1001;
+            addEntry(q, add);
+            add->prev = createList(same);
+            addFirst(add->prev, cur);
+        }
+        add = malloc(sizeof(LOC));
+        add->dir = (cur->dir+3)%4;
+        if (moveX(cur->x, add->dir) >= 0 && moveX(cur->x, add->dir) < width && moveY(cur->y, add->dir) >= 0 && moveY(cur->y, add->dir) < height && arr[moveY(cur->y, add->dir)][moveX(cur->x, add->dir)] >= 0) {
+            add->x = moveX(cur->x, add->dir);
+            add->y = moveY(cur->y, add->dir);
+            add->score = cur->score+1001;
+            addEntry(q, add);
+            add->prev = createList(same);
+            addFirst(add->prev, cur);
+        }
+        do {
+            cur = removeEntry(q);
+            LOC * found = findItem(spent, cur);
+            if (found != NULL) {
+                if (found->score > cur->score) {
+                    removeItem(spent, found);
+                    addFirst(spent, cur);
+                    break;
+                } else if (found->score == cur->score) {
+                    while (numItems(cur->prev) > 0) {
+                        LOC * temp = removeFirst(cur->prev);
+                        if (findItem(found->prev, temp) == NULL) {
+                            addFirst(found->prev, temp);
+                        }
+                    }
+                }
+            } else {
+                addFirst(spent, cur);
+                break;
+            }
+        } while(true);
     }
-    printf("%d\n", reached->score);
-    printf("%d\n", trace(reached, createList(loc)));
+
+    printf("%d\n", 1+trace(cur, createList(loc)));
     return 0;
 }

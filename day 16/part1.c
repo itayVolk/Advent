@@ -3,7 +3,6 @@
    Date: 12/15/2024
 */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -114,7 +113,6 @@ int main() {
                 if (found->score > cur->score) {
                     removeItem(spent, found);
                     addFirst(spent, cur);
-                    free(found);
                     break;
                 }
             } else {
