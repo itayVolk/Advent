@@ -15,7 +15,6 @@ typedef struct loc {
     int y;
     int dir;
     int score;
-    struct loc * prev;
 } LOC;
 
 static int compare(LOC * a, LOC * b) {
@@ -76,7 +75,6 @@ int main() {
     cur->y = y;
     cur->dir = 3;
     cur->score = 0;
-    cur->prev = NULL;
     addEntry(q, cur);
     while(arr[cur->y][cur->x] != 1) {
         if (moveX(cur->x, cur->dir) >= 0 && moveX(cur->x, cur->dir) < width && moveY(cur->y, cur->dir) >= 0 && moveY(cur->y, cur->dir) < height && arr[moveY(cur->y, cur->dir)][moveX(cur->x, cur->dir)] >= 0) {
@@ -85,7 +83,6 @@ int main() {
             add->y = moveY(cur->y, cur->dir);
             add->dir = cur->dir;
             add->score = cur->score+1;
-            add->prev = cur;
             addEntry(q, add);
         }
         LOC * add = malloc(sizeof(LOC));
@@ -94,7 +91,6 @@ int main() {
             add->x = moveX(cur->x, add->dir);
             add->y = moveY(cur->y, add->dir);
             add->score = cur->score+1001;
-            add->prev = cur;
             addEntry(q, add);
         }
         add = malloc(sizeof(LOC));
@@ -103,7 +99,6 @@ int main() {
             add->x = moveX(cur->x, add->dir);
             add->y = moveY(cur->y, add->dir);
             add->score = cur->score+1001;
-            add->prev = cur;
             addEntry(q, add);
         }
         do {
