@@ -6,10 +6,10 @@ all:		$(PROGS)
 
 clean:;		$(RM) $(PROGS) *.o core
 
-part1:	part1.o pqueue.o list.o
-	$(CC) -o a part1.o pqueue.o list.o
+part1:	pqueue.o list.o
+	$(CC) part1.c pqueue.o list.o
 	./a.exe
 
-part2:	part2.o pqueue.o list.o
-	$(CC) -o a part2.o pqueue.o list.o
+part2:	part2.c pqueue.o list.o
+	$(CC) -o a part2.c pqueue.o list.o
 	./a.exe
