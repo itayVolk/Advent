@@ -156,7 +156,6 @@ void *findItem(LIST *lp, void *item) {
     assert(lp != NULL && item != NULL && lp->compare != NULL);
     NODE *cur = lp->head->next;
     while(cur->data != NULL && lp->compare(cur->data, item) != 0) {
-        // printf("c%p\n", cur->data);
         cur = cur->next;
     }
     return (cur->data != NULL && lp->compare(cur->data, item) == 0) ? cur->data : NULL;
