@@ -1,11 +1,10 @@
 /* 
    Author: Itay Volk
-   Date: 12/19/2024
+   Date: 12/21/2024
 */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include "list.h"
 
