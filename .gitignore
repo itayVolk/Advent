@@ -6,3 +6,6 @@ Advent.code-workspace
 *.java
 *.o
 *.py
+.clangd
+/cmake
+*.txt

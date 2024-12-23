@@ -19,7 +19,7 @@ void destroyQueue(PQ *pq);
 
 int numEntries(PQ *pq);
 
-bool addEntry(PQ *pq, void *entry);
+void addEntry(PQ *pq, void *entry);
 
 void *removeEntry(PQ *pq);
 
