@@ -1,8 +1,8 @@
 /* 
    Author: Itay Volk
-   Date: 12/23/2024
+   Date: 12/24/2024
 */
-//TODO Should be 51410244478064
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,11 +62,11 @@ bool compute(LIST * dict, int a, int b, int * wires) {
         DICT * match = findItem(dict, &a);
         if (match == NULL) {
             return false;
+        } else if (compute(dict, match->a, match->b, wires)) {
+            calc(&wires[a], wires[match->a], wires[match->b], match->op);
+            removeItem(dict, &match->out);
         } else {
-            if (compute(dict, match->a, match->b, wires)) {
-                calc(&wires[a], wires[match->a], wires[match->b], match->op);
-                removeItem(dict, &match->out);
-            }
+            return false;
         }
     }
 
@@ -74,11 +74,11 @@ bool compute(LIST * dict, int a, int b, int * wires) {
         DICT * match = findItem(dict, &b);
         if (match == NULL) {
             return false;
+        } else if (compute(dict, match->a, match->b, wires)) {
+            calc(&wires[b], wires[match->a], wires[match->b], match->op);
+            removeItem(dict, &match->out);
         } else {
-            if (compute(dict, match->a, match->b, wires)) {
-                calc(&wires[b], wires[match->a], wires[match->b], match->op);
-                removeItem(dict, &match->out);
-            }
+            return false;
         }
     }
     return true;

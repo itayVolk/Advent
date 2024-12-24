@@ -9,3 +9,4 @@ Advent.code-workspace
 .clangd
 /cmake
 *.txt
+*.js
