@@ -1,6 +1,6 @@
 
 /.vscode
-*/a.exe
+*.exe
 Advent.code-workspace
 */*.txt
 *.java
