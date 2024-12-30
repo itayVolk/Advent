@@ -11,3 +11,6 @@ list:	list.c list.h
 
 pqueue:	pqueue.c pqueue.h
 	$(CC) -c pqueue.c
+
+table:	table.c table.h
+	$(CC) -c table.c
