@@ -134,7 +134,10 @@ void *getLast(LIST *lp) {
       Best: O(1)
 */
 void removeItem(LIST *lp, void *item) {
-    assert(lp != NULL && item != NULL && lp->compare != NULL && lp->count > 0);
+    assert(lp != NULL && item != NULL && lp->compare != NULL);
+    if (lp->count == 0) {
+        return;
+    }
     NODE *cur = lp->head->next;
     while(cur->data != NULL && lp->compare(cur->data, item) != 0) {
         cur = cur->next;
