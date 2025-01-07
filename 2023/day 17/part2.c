@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "pqueue.h"
 
 typedef struct loc {
@@ -15,10 +16,11 @@ typedef struct loc {
     int dir;
     int dist;
     int score;
+    struct loc * prev;
 } LOC;
 
 static int compare(LOC * a, LOC * b) {
-    return (a->score < b->score) ? -1 : (a->score > b->score) ? 1 : (a->x+a->y < b->x+b->y) ? 1 : -(a->x+a->y > b->x+b->y);
+    return (a->score < b->score) ? -1 : (a->score > b->score);// ? 1 : (a->x+a->y < b->x+b->y) ? 1 : -(a->x+a->y > b->x+b->y)
 }
 
 int moveX(int x, int dir) {
@@ -68,11 +70,11 @@ int main() {
         }
     }
     
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 4; j++) {
-            cash[0][0][i][j] = 0;
-        }
-    }
+    // for (int i = 0; i < 10; i++) {
+    //     for (int j = 0; j < 4; j++) {
+    //         cash[0][0][i][j] = 0;
+    //     }
+    // }
 
     PQ * q = createQueue(compare);
     LOC * cur = malloc(sizeof(LOC));
@@ -81,14 +83,25 @@ int main() {
     cur->dir = 3;
     cur->dist = 0;
     cur->score = 0;
+    cur->prev = NULL;
+    addEntry(q, cur);
+    cur = malloc(sizeof(LOC));
+    cur->x = 0;
+    cur->y = 0;
+    cur->dir = 2;
+    cur->dist = 0;
+    cur->score = 0;
+    cur->prev = NULL;
     addEntry(q, cur);
     while(cur->y != height-1 || cur->x != width-1 || cur->dist < 3) {
+        cash[cur->y][cur->x][cur->dist][cur->dir] = cur->score;
         // printf("%d\n", cur->score);
         LOC * add = malloc(sizeof(LOC));
         add->x = moveX(cur->x, cur->dir);
         add->y = moveY(cur->y, cur->dir);
         add->dir = cur->dir;
         add->dist = cur->dist+1;
+        add->prev = cur;
         if (add->dist < 10 && add->x >= 0 && add->x < width && add->y >= 0 && add->y < height) {
             add->score = cur->score+arr[add->y][add->x];
             addEntry(q, add);
@@ -99,6 +112,7 @@ int main() {
             add->x = moveX(cur->x, add->dir);
             add->y = moveY(cur->y, add->dir);
             add->dist = 0;
+            add->prev = cur;
             if (add->x >= 0 && add->x < width && add->y >= 0 && add->y < height) {
                 add->score = cur->score+arr[add->y][add->x];
                 addEntry(q, add);
@@ -108,6 +122,7 @@ int main() {
             add->x = moveX(cur->x, add->dir);
             add->y = moveY(cur->y, add->dir);
             add->dist = 0;
+            add->prev = cur;
             if (add->x >= 0 && add->x < width && add->y >= 0 && add->y < height) {
                 add->score = cur->score+arr[add->y][add->x];
                 addEntry(q, add);
@@ -116,8 +131,27 @@ int main() {
         do {
             cur = removeEntry(q);
         } while(cur->score >= cash[cur->y][cur->x][cur->dist][cur->dir]);
-        cash[cur->y][cur->x][cur->dist][cur->dir] = cur->score;
     }
     printf("%d\n", cur->score);
+    
+    // bool ** print = malloc(height*sizeof(bool*));
+    // for (int i = 0; i < height; i++) {
+    //     print[i] = calloc(width, sizeof(bool));
+    // }
+    
+    // while(cur != NULL) {
+    //     if (print[cur->y][cur->x]) {
+    //         printf("%d:%d\n", cur->y, cur->x);
+    //     }
+    //     print[cur->y][cur->x] = true;
+    //     cur = cur->prev;
+    // }
+
+    // for (int i = 0; i < height; i++) {
+    //     for (int j = 0; j < width; j++) {
+    //         printf("%c", print[i][j]?'#':'.');
+    //     }
+    //     printf("\n");
+    // }
     return 0;
 }

@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include "pqueue.h"
-#include "list.h"
 
 typedef struct loc {
     int x;
@@ -59,8 +58,21 @@ int main() {
         height++;
     }
 
+    int **** cash = malloc(height*sizeof(int ***));
+    for (int i = 0; i < height; i++) {
+        cash[i] = malloc(width*sizeof(int **));
+        for (int j = 0; j < width; j++) {
+            cash[i][j] = malloc(10*sizeof(int *));
+            for (int k = 0; k < 10; k++) {
+                cash[i][j][k] = malloc(4*sizeof(int));
+                for (int l = 0; l < 4; l++) {
+                    cash[i][j][k][l] = INT_MAX;
+                }
+            }
+        }
+    }
+
     PQ * q = createQueue(compare);
-    LIST * spent = createList(same);
     LOC * cur = malloc(sizeof(LOC));
     cur->x = 0;
     cur->y = 0;
@@ -69,6 +81,7 @@ int main() {
     cur->score = 0;
     addEntry(q, cur);
     while(cur->y != height-1 || cur->x != width-1) {
+        cash[cur->y][cur->x][cur->dist][cur->dir] = cur->score;
         // printf("%d\n", cur->score);
         LOC * add = malloc(sizeof(LOC));
         add->x = moveX(cur->x, cur->dir);
@@ -97,20 +110,10 @@ int main() {
             add->score = cur->score+arr[add->y][add->x];
             addEntry(q, add);
         }
-        while (true) {
+        
+        do {
             cur = removeEntry(q);
-            LOC * found = findItem(spent, cur);
-            if (found != NULL) {
-                if (found->score > cur->score) {
-                    removeItem(spent, found);
-                    addFirst(spent, cur);
-                    break;
-                }
-            } else {
-                addFirst(spent, cur);
-                break;
-            }
-        };
+        } while(cur->score >= cash[cur->y][cur->x][cur->dist][cur->dir]);
     }
     printf("%d\n", cur->score);
     return 0;
