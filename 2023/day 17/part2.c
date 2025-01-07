@@ -69,33 +69,26 @@ int main() {
             }
         }
     }
-    
-    // for (int i = 0; i < 10; i++) {
-    //     for (int j = 0; j < 4; j++) {
-    //         cash[0][0][i][j] = 0;
-    //     }
-    // }
 
     PQ * q = createQueue(compare);
     LOC * cur = malloc(sizeof(LOC));
-    cur->x = 0;
+    cur->x = 1;
     cur->y = 0;
     cur->dir = 3;
     cur->dist = 0;
-    cur->score = 0;
+    cur->score = arr[cur->y][cur->x];
     cur->prev = NULL;
     addEntry(q, cur);
     cur = malloc(sizeof(LOC));
     cur->x = 0;
-    cur->y = 0;
+    cur->y = 1;
     cur->dir = 2;
     cur->dist = 0;
-    cur->score = 0;
+    cur->score = arr[cur->y][cur->x];
     cur->prev = NULL;
     addEntry(q, cur);
     while(cur->y != height-1 || cur->x != width-1 || cur->dist < 3) {
         cash[cur->y][cur->x][cur->dist][cur->dir] = cur->score;
-        // printf("%d\n", cur->score);
         LOC * add = malloc(sizeof(LOC));
         add->x = moveX(cur->x, cur->dir);
         add->y = moveY(cur->y, cur->dir);
@@ -133,25 +126,5 @@ int main() {
         } while(cur->score >= cash[cur->y][cur->x][cur->dist][cur->dir]);
     }
     printf("%d\n", cur->score);
-    
-    // bool ** print = malloc(height*sizeof(bool*));
-    // for (int i = 0; i < height; i++) {
-    //     print[i] = calloc(width, sizeof(bool));
-    // }
-    
-    // while(cur != NULL) {
-    //     if (print[cur->y][cur->x]) {
-    //         printf("%d:%d\n", cur->y, cur->x);
-    //     }
-    //     print[cur->y][cur->x] = true;
-    //     cur = cur->prev;
-    // }
-
-    // for (int i = 0; i < height; i++) {
-    //     for (int j = 0; j < width; j++) {
-    //         printf("%c", print[i][j]?'#':'.');
-    //     }
-    //     printf("\n");
-    // }
     return 0;
 }
