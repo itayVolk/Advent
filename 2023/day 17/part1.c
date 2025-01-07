@@ -1,6 +1,6 @@
 /* 
    Author: Itay Volk
-   Date: 12/15/2024
+   Date: 1/7/2024
 */
 
 #include <stdio.h>
@@ -82,7 +82,6 @@ int main() {
     addEntry(q, cur);
     while(cur->y != height-1 || cur->x != width-1) {
         cash[cur->y][cur->x][cur->dist][cur->dir] = cur->score;
-        // printf("%d\n", cur->score);
         LOC * add = malloc(sizeof(LOC));
         add->x = moveX(cur->x, cur->dir);
         add->y = moveY(cur->y, cur->dir);
