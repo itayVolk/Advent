@@ -74,8 +74,7 @@ bool trace(int * part, LIST * cur, LIST ** flows) {
 }
 
 int main() {
-    FILE * fp;
-    fopen_s(&fp, "input.txt", "r");
+    FILE * fp = fopen("input.txt", "r");
     char line[512];
     LIST ** flows = malloc(MAX*sizeof(LIST *));
     while(fgets(line, sizeof(line), fp) != NULL && strcmp(line, "\n") != 0) {
