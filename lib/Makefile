@@ -14,3 +14,6 @@ pqueue:	pqueue.c pqueue.h
 
 table:	table.c table.h
 	$(CC) -c table.c
+
+map:	map.c map.h list.o
+	$(CC) -c map.c
