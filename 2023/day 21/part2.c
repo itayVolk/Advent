@@ -20,6 +20,8 @@ int trace(int x, int y, int width, int height, bool ** map, bool *** visited, in
     return trace(x+1, y, width, height, map, visited, step) + trace(x-1, y, width, height, map, visited, step) + trace(x, y+1, width, height, map, visited, step) + trace(x, y-1, width, height, map, visited, step);
 }
 
+#define NUM 3
+
 int main() {
     FILE * fp = fopen("input.txt", "r");
     char line[512];
@@ -43,17 +45,17 @@ int main() {
         }
         height++;
     }
-    bool **** visited = malloc(3*sizeof(bool ***));
-    int * values = malloc(3*sizeof(int));
-    for (int k = 0; k < 3; k++) {
+    bool **** visited = malloc(NUM*sizeof(bool ***));
+    int * values = malloc(NUM*sizeof(int));
+    for (int k = 0; k < NUM; k++) {
         visited[k] = malloc(height*(k+1.5)*sizeof(bool **));
         for (int i = 0; i < height*(k+1.5); i++) {
-            visited[k][i] = malloc(5*height*sizeof(bool *));
-            for (int j = 0; j < 5*height; j++) {
-                visited[k][i][j] = calloc(5*width, sizeof(bool));
+            visited[k][i] = malloc((NUM*2-1)*height*sizeof(bool *));
+            for (int j = 0; j < (NUM*2-1)*height; j++) {
+                visited[k][i][j] = calloc((NUM*2-1)*width, sizeof(bool));
             }
         }
-        values[k] = trace(x+width*2, y+height*2, width, height, map, visited[k], height*(k+0.5));
+        values[k] = trace(x+width*(NUM-1), y+height*(NUM-1), width, height, map, visited[k], height*(k+0.5));
     }
     long long num = 26501365.0/height;
     long long a = (values[2] - 2*values[1] + values[0])/2;
