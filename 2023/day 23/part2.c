@@ -6,15 +6,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <assert.h>
 #include <string.h>
+#include "table.h"
 
 typedef struct node {
     int x;
     int y;
-    int num;
-    struct node ** next;
+    int id;
 } NODE;
+
+static int compare(NODE * a, NODE * b) {
+    return a->x != b->x || a->y != b->y;
+}
+
+static unsigned hash(NODE * a) {
+    return a->x + a->y;
+}
 
 int moveX(int x, int d) {
     if (d%2 == 0) {
@@ -30,13 +37,10 @@ int moveY(int y, int d) {
     return y + d - 1;
 }
 
-bool ** paste(bool ** visited, int width, int height) {
-    bool ** copy = malloc(height*sizeof(bool *));
-    for (int i = 0; i < height; i++) {
-        copy[i] = malloc(width*sizeof(bool));
-        for (int j = 0 ; j < width; j++) {
-            copy[i][j] = visited[i][j];
-        }
+bool * paste(bool * visited, int num) {
+    bool * copy = malloc(num*sizeof(bool));
+    for (int i = 0; i < num; i++) {
+        copy[i] = visited[i];
     }
     return copy;
 }
@@ -52,52 +56,32 @@ int countDirs(bool ** map, int x, int y) {
 }
 
 int traceDir(bool ** map, int x, int y, int * ox, int * oy, int dir) {
-    // printf("%d,%d,%d\n", x, y, dir);
-    if (map[y][x]) {
-        return -1;
-    }
-    
-    if (countDirs(map, x, y) > 2) {
+    if (countDirs(map, x, y) != 2) {
         *ox = x;
         *oy = y;
-        return 0;
-    }
-    int weight;
-    int count = 0;
-    for (int d = 0; d < 4; d++) {
-        if ((d+2)%4 != dir) {
-            int tx, ty;
-            int temp = traceDir(map, moveX(x, d), moveY(y, d), ox, oy, d);
-            if (temp != -1) {
-                count++;
-                weight = temp;
-            }
-        }
-    }
-    if (count > 1) {
-        *ox = x;
-        *oy = y;
-        return 0;
-    }
-    return weight+1;
-}
-
-int traceGraph(int x, int y, int width, int height, NODE *** nodes, int ** weights, bool ** visited) {
-    if (x == width-2 && y == height-2) {
         return 1;
     }
-    if(visited[y][x]) {
-        return -1;
+    for (int d = 0; d < 4; d++) {
+        if ((d+2)%4 != dir && !map[moveY(y, d)][moveX(x, d)]) {
+            return traceDir(map, moveX(x, d), moveY(y, d), ox, oy, d)+1;
+        }
     }
-    visited[y][x] = true;
+    return -1;
+}
 
-    int max = 0;
-    for (int i = 0; i < nodes[y][x]->num; i++) {
-        int tx = nodes[y][x]->next[i]->x;
-        int ty = nodes[y][x]->next[i]->y;
-        int temp = traceGraph(tx, ty, width, height, nodes, weights, paste(visited, width, height));
-        if (temp != -1 && temp + weights[y*width+x][ty*width+tx] > max) {
-            max = temp + weights[y*width+x][ty*width+tx];
+int traceGraph(int i, int num, NODE ** nodes, int ** weights, bool * visited) {
+    if (i == num-1) {
+        return 1;
+    }
+    visited[i] = true;
+
+    int max = -1;
+    for (int j = 0; j < num; j++) {
+        if (i != j && weights[i][j] != 0 && !visited[j]) {
+            int temp = traceGraph(j, num, nodes, weights, paste(visited, num));
+            if (temp != -1 && temp + weights[i][j] > max) {
+                max = temp + weights[i][j];
+            }
         }
     }
     return max;
@@ -123,60 +107,40 @@ int main() {
     map[0][1] = true;
     map[height-1][width-2] = true;
 
-    int ** weights = malloc(height*width*sizeof(int *));
-    for (int i = 0; i < height*width; i++) {
-        weights[i] = calloc(width, sizeof(int));
-    }
-    NODE *** nodes = malloc(height*sizeof(NODE **));
-    for (int i = 0; i < height; i++) {
-        nodes[i] = malloc(height*width*sizeof(NODE *));
-        for (int j = 0; j < width; j++) {
-            nodes[i][j] = malloc(sizeof(NODE));
-            nodes[i][j]->x = j;
-            nodes[i][j]->y = i;
-            nodes[i][j]->num = 0;
-            nodes[i][j]->next = malloc(4*sizeof(NODE *));
-        }
-    }
-
-    int ex, ey;
-    // printf("start\n");
-    int e = traceDir(map, 1, 1, &ex, &ey, 2);
-    // printf("end\n");
-    weights[width+1][ey*width+ex] = e;
-    nodes[1][1]->next[nodes[1][1]->num++] = nodes[ey][ex];
-    weights[ey*width+ex][width+1] = e;
-    nodes[ey][ex]->next[nodes[ey][ex]->num++] = nodes[1][1];
-    e = traceDir(map, width-2, height-2, &ex, &ey, 0);
-    // printf("%d\n", e);
-    weights[height*width-width-2][ey*width+ex] = e;
-    nodes[height-2][width-2]->next[nodes[height-2][width-2]->num++] = nodes[ey][ex];
-    weights[ey*width+ex][height*width-width-2] = e;
-    nodes[ey][ex]->next[nodes[ey][ex]->num++] = nodes[height-2][width-2];
-    // printf("%p\n", weights);
+    NODE ** nodes = malloc(height*width*sizeof(NODE *));
+    int num = 0;
+    SET * table = createSet(height*width, compare, hash);
     
     for (int i = 1; i < height-1; i++) {
         for (int j = 1; j < width-1; j++) {
-            printf("%d,%d\n", j, i);
-            if (!map[i][j] && countDirs(map, j, i) > 2) {
-                for (int d = 0; d < 4; d++) {
-                    int x, y;
-                    int weight = traceDir(map, moveX(j, d), moveY(i, d), &x, &y, d);
-                    if (weight != -1) {
-                        weights[i*width+j][y*width+x] = weight;
-                        nodes[i][j]->next[nodes[i][j]->num++] = nodes[y][x];
-                        weights[y*width+x][i*width+j] = weight;
-                        nodes[y][x]->next[nodes[y][x]->num++] = nodes[i][j];
-                    }
-                }
+            if (!map[i][j] && countDirs(map, j, i) != 2) {
+                NODE * add = malloc(sizeof(NODE));
+                add->x = j;
+                add->y = i;
+                add->id = num;
+                nodes[num++] = add;
+                addElement(table, add);
             }
         }
     }
-    printf("%p\n", nodes);    
-    bool ** visited = malloc(height*sizeof(bool *));
-    for (int i = 0; i < height; i++) {
-        visited[i] = calloc(width, sizeof(bool));
+
+    int ** weights = malloc(num*sizeof(int *));
+    for (int i = 0; i < num; i++) {
+        weights[i] = calloc(num, sizeof(int));
     }
-    printf("%d\n", traceGraph(1, 1, width, height, nodes, weights, visited));
+    for (int i = 0; i < num; i++) {
+        for (int d = 0; d < 4; d++) {
+            if (!map[moveY(nodes[i]->y, d)][moveX(nodes[i]->x, d)]) {
+                int x, y;
+                int weight = traceDir(map, moveX(nodes[i]->x, d), moveY(nodes[i]->y, d), &x, &y, d);
+                NODE * search = malloc(sizeof(NODE));
+                search->x = x;
+                search->y = y;
+                search = findElement(table, search);
+                weights[nodes[i]->id][search->id] = weight;
+            }
+        }
+    }
+    printf("%d\n", 1+traceGraph(0, num, nodes, weights, calloc(num, sizeof(bool))));
     return 0;
 }
